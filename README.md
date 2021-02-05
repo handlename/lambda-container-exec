@@ -28,8 +28,6 @@ CONTAINER_EXEC_SRC/
 `-- ...
 ```
 
-If source code is a tarball, lambda-container-exec will extract it and exec `bootstrap` in it.
-
 ## Author
 
 https://github.com/handlename
