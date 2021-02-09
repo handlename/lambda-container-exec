@@ -83,9 +83,19 @@ func HandleRequest(ctx context.Context, event Event) (Result, error) {
 
 	envVars := []string{
 		fmt.Sprintf("%s=%s", ENV_EVENT, rawEvent),
+	bootstrapPath := filepath.Join(funcDir, "bootstrap")
+	bootstrap, err := exec.LookPath(bootstrapPath)
+	if err != nil {
+		log.Printf("[WARN] bootstrap not found at %s", bootstrapPath)
+		return Result{false}, err
 	}
 
-	return Result{true}, syscall.Exec(filepath.Join(funcDir, "bootstrap"), []string{}, envVars)
+	if err := syscall.Exec(bootstrap, []string{}, envVars); err != nil {
+		log.Printf("[WARN] failed to exec code error='%s'", err)
+		return Result{false}, err
+	}
+
+	return Result{true}, nil
 }
 
 func placeSourceCode(ctx context.Context, bucket, key string, dest string) error {
