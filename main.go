@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/url"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"syscall"
@@ -81,8 +82,9 @@ func HandleRequest(ctx context.Context, event Event) (Result, error) {
 
 	// exec code
 
-	envVars := []string{
-		fmt.Sprintf("%s=%s", ENV_EVENT, rawEvent),
+	envVars := os.Environ()
+	envVars = append(envVars, fmt.Sprintf("%s=%s", ENV_EVENT, rawEvent))
+
 	bootstrapPath := filepath.Join(funcDir, "bootstrap")
 	bootstrap, err := exec.LookPath(bootstrapPath)
 	if err != nil {
