@@ -111,7 +111,7 @@ func placeSourceCode(ctx context.Context, bucket, key string, dest string) error
 		return err
 	}
 
-	log.Printf("[DEBUG] taraball unarchived to %s", dest)
+	log.Printf("[DEBUG] tarball unarchived to %s", dest)
 	log.Printf("[DEBUG] end to place source code")
 
 	return nil
