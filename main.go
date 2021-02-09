@@ -13,7 +13,6 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
-	"syscall"
 
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -92,10 +91,13 @@ func HandleRequest(ctx context.Context, event Event) (Result, error) {
 		return Result{false}, err
 	}
 
-	if err := syscall.Exec(bootstrap, []string{}, envVars); err != nil {
+	out, err := exec.Command(bootstrap).Output()
+	if err != nil {
 		log.Printf("[WARN] failed to exec code error='%s'", err)
 		return Result{false}, err
 	}
+
+	log.Printf("[INFO] out='%s'", out)
 
 	return Result{true}, nil
 }
