@@ -34,6 +34,10 @@ const (
 
 type Event interface{}
 
+type Result struct {
+	Success bool `json:"success"`
+}
+
 func main() {
 	filter := &logutils.LevelFilter{
 		Levels:   []logutils.LogLevel{"DEBUG", "INFO", "WARN", "ERROR"},
@@ -45,7 +49,7 @@ func main() {
 	lambda.Start(HandleRequest)
 }
 
-func HandleRequest(ctx context.Context, event Event) error {
+func HandleRequest(ctx context.Context, event Event) (Result, error) {
 	rawEvent, err := json.Marshal(event)
 	if err != nil {
 		fmt.Printf("failed to unmarshal event=%#v error=%s", event, err)
@@ -56,7 +60,7 @@ func HandleRequest(ctx context.Context, event Event) error {
 	bucket, key, err := parseS3Path(os.Getenv(ENV_SRC))
 	if err != nil {
 		log.Printf("[DEBUG] failed to parseS3Path")
-		return err
+		return Result{false}, err
 	}
 
 	codeDir := os.Getenv(ENV_CODE_DIR)
@@ -67,12 +71,12 @@ func HandleRequest(ctx context.Context, event Event) error {
 	funcDir := filepath.Join(codeDir, key)
 	if err := os.MkdirAll(funcDir, 0755); err != nil {
 		log.Printf("[DEBUG] failed to create func dir '%s'", funcDir)
-		return err
+		return Result{false}, err
 	}
 
 	if err := placeSourceCode(ctx, bucket, key, funcDir); err != nil {
 		log.Printf("[DEBUG] failed to place source code")
-		return err
+		return Result{false}, err
 	}
 
 	// exec code
@@ -81,7 +85,7 @@ func HandleRequest(ctx context.Context, event Event) error {
 		fmt.Sprintf("%s=%s", ENV_EVENT, rawEvent),
 	}
 
-	return syscall.Exec(filepath.Join(funcDir, "bootstrap"), []string{}, envVars)
+	return Result{true}, syscall.Exec(filepath.Join(funcDir, "bootstrap"), []string{}, envVars)
 }
 
 func placeSourceCode(ctx context.Context, bucket, key string, dest string) error {
