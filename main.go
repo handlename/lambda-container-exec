@@ -33,10 +33,7 @@ const (
 )
 
 type Event interface{}
-
-type Result struct {
-	Success bool `json:"success"`
-}
+type Result interface{}
 
 func main() {
 	filter := &logutils.LevelFilter{
@@ -60,7 +57,7 @@ func HandleRequest(ctx context.Context, event Event) (Result, error) {
 	bucket, key, err := parseS3Path(os.Getenv(ENV_SRC))
 	if err != nil {
 		log.Printf("[DEBUG] failed to parseS3Path")
-		return Result{false}, err
+		return nil, err
 	}
 
 	codeDir := os.Getenv(ENV_CODE_DIR)
@@ -71,12 +68,12 @@ func HandleRequest(ctx context.Context, event Event) (Result, error) {
 	funcDir := filepath.Join(codeDir, key)
 	if err := os.MkdirAll(funcDir, 0755); err != nil {
 		log.Printf("[DEBUG] failed to create func dir '%s'", funcDir)
-		return Result{false}, err
+		return nil, err
 	}
 
 	if err := placeSourceCode(ctx, bucket, key, funcDir); err != nil {
 		log.Printf("[DEBUG] failed to place source code")
-		return Result{false}, err
+		return nil, err
 	}
 
 	// exec code
@@ -88,18 +85,20 @@ func HandleRequest(ctx context.Context, event Event) (Result, error) {
 	bootstrap, err := exec.LookPath(bootstrapPath)
 	if err != nil {
 		log.Printf("[WARN] bootstrap not found at %s", bootstrapPath)
-		return Result{false}, err
+		return nil, err
 	}
+
+	log.Printf("[INFO] running bootstrap ...")
 
 	out, err := exec.Command(bootstrap).Output()
 	if err != nil {
 		log.Printf("[WARN] failed to exec code error='%s'", err)
-		return Result{false}, err
+		return nil, err
 	}
 
-	log.Printf("[INFO] out='%s'", out)
+	log.Printf("[INFO] done out='%s'", out)
 
-	return Result{true}, nil
+	return out, nil
 }
 
 func placeSourceCode(ctx context.Context, bucket, key string, dest string) error {
