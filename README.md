@@ -21,14 +21,10 @@ It exec code downloaded from S3.
 
 ## Source code structure
 
-lambda-container-exec exec `bootstarp` in downloaded source code directory.
+lambda-container-exec downloads source code from `$CONTAINER_EXEC_SRC` as S3 path,
+and exec `bootstarp` in extracted source code.
 
-```
-CONTAINER_EXEC_SRC/
-|
-`-- bootstrap
-`-- ...
-```
+Please check ./exmaple/code directory.
 
 ## Author
 
