@@ -53,6 +53,11 @@ build-docker-image: dist
 push-docker-image:
 	docker push ghcr.io/$(PROJECT_USERNAME)/$(PROJECT_REPONAME):$(VERSION)
 
+.PHONY: release
+release:
+	git tag v$(VERSION)
+	git push origin v$(VERSION)
+
 .PHONY: clean
 clean:
 	rm -rf $(PROJECT_REPONAME) $(DIST_DIR)/*
