@@ -4,7 +4,7 @@ PROJECT_REPONAME=lambda-container-exec
 DIST_DIR=dist
 MAKEFILE_PATH=$(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 
-run: build-run-image .aws-lambda-rie dist
+run: .aws-lambda-rie dist
 	docker run \
 		-v $(MAKEFILE_PATH)/.aws-lambda-rie:/aws-lambda \
 		-v $(MAKEFILE_PATH)/dist/lambda-container-exec_v$(VERSION)_linux_amd64:/main \
@@ -16,12 +16,8 @@ run: build-run-image .aws-lambda-rie dist
 		-e CONTAINER_EXEC_SRC=$(CONTAINER_EXEC_SRC) \
 		--entrypoint /aws-lambda/aws-lambda-rie \
 		-p 9000:8080 \
-		$(PROJECT_USERNAME)/$(PROJECT_REPONAME) \
+		alpine:latest \
 		/main
-
-.PHONY: build-image
-build-run-image:
-	docker build . -t $(PROJECT_USERNAME)/$(PROJECT_REPONAME):run
 
 .PHONY: .aws-lambda-rie
 .aws-lambda-rie:
