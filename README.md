@@ -8,7 +8,9 @@ It exec code downloaded from S3.
 1. Place lambda-container-exec binary at `/main` in your container image.
 
    ```docker
-   COPY lambda-container-exec /main
+   FROM ghcr.io/handlename/lambda-container-exec:0.1.0 AS lambda-container-exec
+   FROM ...
+   COPY --from lambda-container-exec /usr/local/bin/lambda-container-exec /main
    ```
 1. Set ENTRYPOINT as `"/main"`
 
