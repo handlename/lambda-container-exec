@@ -4,6 +4,9 @@ PROJECT_REPONAME=lambda-container-exec
 DIST_DIR=dist
 MAKEFILE_PATH=$(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 
+test:
+	go test -v ./...
+
 run: .aws-lambda-rie dist
 	docker run \
 		-v $(MAKEFILE_PATH)/.aws-lambda-rie:/aws-lambda \
