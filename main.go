@@ -104,13 +104,15 @@ func HandleRequest(ctx context.Context, event Event) (Result, error) {
 	}
 
 	log.Printf("[INFO] running bootstrap ...")
-	return runCmd(ctx, bootstrap)
+	return runCmd(ctx, bootstrap, envVars)
 }
 
-func runCmd(ctx context.Context, cmdPath string) ([]byte, error) {
+func runCmd(ctx context.Context, cmdPath string, envVars []string) ([]byte, error) {
 	log.Printf("[INFO] command path=%s", cmdPath)
 
 	cmd := exec.Command(cmdPath)
+	cmd.Env = envVars
+
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		log.Printf("[WARN] failed to get stdout pipe error='%s'", err)
