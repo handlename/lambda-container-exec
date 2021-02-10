@@ -10,7 +10,7 @@ It exec code downloaded from S3.
    ```docker
    FROM ghcr.io/handlename/lambda-container-exec:0.1.0 AS lambda-container-exec
    FROM ...
-   COPY --from lambda-container-exec /usr/local/bin/lambda-container-exec /main
+   COPY --from=lambda-container-exec /usr/local/bin/lambda-container-exec /main
    ```
 1. Set ENTRYPOINT as `"/main"`
 
