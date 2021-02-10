@@ -19,6 +19,9 @@ It exec code downloaded from S3.
    ```
 1. Set source code path to environment variable `CONTAINER_EXEC_SRC`
 
+See also AWS official documentation.
+https://docs.aws.amazon.com/ja_jp/lambda/latest/dg/go-image.html
+
 ## Source code structure
 
 lambda-container-exec downloads source code from `$CONTAINER_EXEC_SRC` as S3 path,
