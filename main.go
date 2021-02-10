@@ -2,12 +2,14 @@ package main
 
 import (
 	"archive/tar"
+	"bufio"
 	"compress/gzip"
 	"context"
 	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/url"
 	"os"
@@ -102,14 +104,47 @@ func HandleRequest(ctx context.Context, event Event) (Result, error) {
 	}
 
 	log.Printf("[INFO] running bootstrap ...")
+	return runCmd(ctx, bootstrap)
+}
 
-	out, err := exec.Command(bootstrap).Output()
+func runCmd(ctx context.Context, cmdPath string) ([]byte, error) {
+	log.Printf("[INFO] command path=%s", cmdPath)
+
+	cmd := exec.Command(cmdPath)
+	stdout, err := cmd.StdoutPipe()
 	if err != nil {
-		log.Printf("[WARN] failed to exec code error='%s'", err)
+		log.Printf("[WARN] failed to get stdout pipe error='%s'", err)
 		return nil, err
 	}
 
-	log.Printf("[INFO] done out='%s'", out)
+	stderr, err := cmd.StderrPipe()
+	if err != nil {
+		log.Printf("[WARN] failed to get stderr pipe error='%s'", err)
+		return nil, err
+	}
+
+	if err := cmd.Start(); err != nil {
+		log.Printf("[WARN] failed to start command error='%s'", err)
+		return nil, err
+	}
+
+	scanner := bufio.NewScanner(stderr)
+	for scanner.Scan() {
+		fmt.Println(scanner.Text())
+	}
+
+	out, err := ioutil.ReadAll(stdout)
+	if err != nil {
+		fmt.Printf("[WARN] failed to read command output error='%s", err)
+		return nil, err
+	}
+
+	if err := cmd.Wait(); err != nil {
+		fmt.Printf("[WARN] failed to wait command error='%s'", err)
+		return nil, err
+	}
+
+	log.Printf("[INFO] done command")
 
 	return out, nil
 }
