@@ -4,6 +4,9 @@ PROJECT_REPONAME=lambda-container-exec
 DIST_DIR=dist
 MAKEFILE_PATH=$(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 
+export GOOS=linux
+export GOARCH=amd64
+
 test:
 	go test -v ./...
 
@@ -32,11 +35,9 @@ run: .aws-lambda-rie dist
 .PHONY: dist
 dist: clean
 	mkdir -p $(DIST_DIR)
-	gox \
+	go build \
 		-ldflags '-X main.version=$(VERSION)' \
-		-os='linux' \
-		-arch='amd64' \
-		-output='$(DIST_DIR)/$(PROJECT_REPONAME)_v$(VERSION)_{{ .OS }}_{{ .Arch }}' \
+		-o '$(DIST_DIR)/$(PROJECT_REPONAME)_v$(VERSION)_$(GOOS)_$(GOARCH)' \
 		.
 
 .PHONY: build-docker-image
