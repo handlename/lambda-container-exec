@@ -5,6 +5,7 @@ import (
 	"compress/gzip"
 	"context"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -42,6 +43,18 @@ func main() {
 		Writer:   os.Stderr,
 	}
 	log.SetOutput(filter)
+
+	var (
+		versionFlag bool
+	)
+
+	flag.BoolVar(&versionFlag, "version", false, "show version")
+	flag.Parse()
+
+	if versionFlag {
+		log.Printf("lambda-container-exec v%s", version)
+		os.Exit(0)
+	}
 
 	lambda.Start(HandleRequest)
 }
