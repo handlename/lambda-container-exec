@@ -36,6 +36,19 @@ dist: clean
 		-output='$(DIST_DIR)/$(PROJECT_REPONAME)_v$(VERSION)_{{ .OS }}_{{ .Arch }}' \
 		.
 
+.PHONY: build-docker-image
+build-docker-image: dist
+	docker build \
+	  --rm \
+	  --build-arg VERSION=$(VERSION) \
+	  --tag $(PROJECT_USERNAME)/$(PROJECT_REPONAME):$(VERSION) \
+	  --tag ghcr.io/$(PROJECT_USERNAME)/$(PROJECT_REPONAME):$(VERSION) \
+	  .
+
+.PHONY: push-docker-image
+push-docker-image:
+	docker push ghcr.io/$(PROJECT_USERNAME)/$(PROJECT_REPONAME):$(VERSION)
+
 .PHONY: clean
 clean:
 	rm -rf $(PROJECT_REPONAME) $(DIST_DIR)/*
