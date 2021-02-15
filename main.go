@@ -21,6 +21,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/google/uuid"
 	"github.com/hashicorp/logutils"
 )
 
@@ -32,7 +33,7 @@ const (
 	ENV_EVENT     = "CONTAINER_EXEC_EVENT"
 	ENV_LOG_LEVEL = "CONTAINER_EXEC_LOG_LEVEL"
 
-	DEFAULT_CODE_DIR = "/data/lambda"
+	DEFAULT_CODE_DIR = "/tmp/lambda"
 )
 
 type Event interface{}
@@ -80,7 +81,7 @@ func HandleRequest(ctx context.Context, event Event) (Result, error) {
 		codeDir = DEFAULT_CODE_DIR
 	}
 
-	funcDir := filepath.Join(codeDir, key)
+	funcDir := uniquePath(codeDir)
 	if err := os.MkdirAll(funcDir, 0755); err != nil {
 		log.Printf("[DEBUG] failed to create func dir '%s'", funcDir)
 		return nil, err
@@ -253,4 +254,8 @@ func unarchiveTarball(r io.Reader, dest string) error {
 			f.Close()
 		}
 	}
+}
+
+func uniquePath(parent string) string {
+	return filepath.Join(parent, uuid.NewString())
 }
