@@ -32,7 +32,7 @@ const (
 	ENV_EVENT     = "CONTAINER_EXEC_EVENT"
 	ENV_LOG_LEVEL = "CONTAINER_EXEC_LOG_LEVEL"
 
-	DEFAULT_CODE_DIR = "/data/lambda"
+	DEFAULT_CODE_DIR = "/tmp/lambda"
 )
 
 type Event interface{}
