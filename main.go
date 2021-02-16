@@ -91,6 +91,13 @@ func HandleRequest(ctx context.Context, event Event) (Result, error) {
 		log.Printf("[DEBUG] failed to place source code")
 		return nil, err
 	}
+	defer func() {
+		if err := os.RemoveAll(funcDir); err != nil {
+			log.Printf("[WARN] failed to remove func dir error='%s'", err)
+		}
+
+		log.Printf("[DEBUG] func dir '%s' removed successfully", funcDir)
+	}()
 
 	// exec code
 
